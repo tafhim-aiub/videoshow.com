@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be the Best Version - Video Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f8f8f8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .container {
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        input, select, button {
+            margin-top: 10px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #fff;
+            transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+
+        input:focus, select:focus, button:focus {
+            outline: none;
+            background-color: #444;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #openButton {
+            background-color: #3498db;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
+            transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+
+        #openButton:hover {
+            background-color: #2980b9;
+        }
+
+        .logout-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+            animation: blink 1s infinite;
+            transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+            animation: none; /* Disable blinking on hover */
+        }
+
+        .refresh-icon {
+            cursor: pointer;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color: #fff;">Be the Best Version</h1>
+
+    <div>
+        <label for="username" style="color: #fff;">Enter Username:</label>
+        <div class="password-container">
+            <input type="text" id="username" required>
+            <span class="password-toggle" onclick="togglePasswordVisibility('username')">👁️</span>
+        </div>
+    </div>
+
+    <div>
+        <label for="password" style="color: #fff;">Enter Password:</label>
+        <div class="password-container">
+            <input type="password" id="password" required>
+            <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+        </div>
+    </div>
+
+    <div>
+        <label for="search" style="color: #fff;">Search Video:</label>
+        <input type="text" id="search" placeholder="Enter two or three letters of the video title">
+    </div>
+
+    <div>
+        <label for="videos" style="color: #fff;">Select Video:</label>
+        <select id="videos">
+            <option value="">Select a video</option>
+            <!-- Add more video options as needed -->
+        </select>
+    </div>
+
+    <div class="button-container">
+        <button id="openButton" onclick="openVideo()">Open</button>
+        <span class="refresh-icon" onclick="refreshPage()">🔄</span>
+    </div>
+
+    <video id="customVideo" controls oncontextmenu="return false" style="display: none;">
+        <source src="" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <button class="logout-button" onclick="logout()">Logout</button>
+</div>
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const searchInput = document.getElementById('search');
+    const videosDropdown = document.getElementById('videos');
+    const openButton = document.getElementById('openButton');
+    const refreshIcon = document.querySelector('.refresh-icon');
+    const logoutButton = document.querySelector('.logout-button');
+    const videoPlayer = document.getElementById('customVideo');
+
+    const correctUsername = 'user123'; // Replace with your desired username
+    const correctPassword = 't123'; // Replace with your desired password
+
+    const videoData = [
+        { value: 'm3lect-01.mp4', label: 'Math-03_P-01' },
+        { value: 'm3lect-02.mp4', label: 'Math-03_P02' },
+        { value: 'java Lecture-1.mp4', label: 'Java_Part-1 ' },
+        { value: 'javalec02.mp4', label: 'Java_P02 ' },
+        // Add more video options as needed
+    ];
+
+    function filterVideos(searchTerm) {
+        const filteredVideos = videoData.filter(video => video.label.toLowerCase().startsWith(searchTerm.toLowerCase()));
+        populateDropdown(filteredVideos);
+    }
+
+    function populateDropdown(videos) {
+        videosDropdown.innerHTML = '<option value="">Select a video</option>';
+        videos.forEach(video => {
+            const option = document.createElement('option');
+            option.value = video.value;
+            option.text = video.label;
+            videosDropdown.add(option);
+        });
+    }
+
+    function openVideo() {
+        const enteredUsername = usernameInput.value;
+        const enteredPassword = passwordInput.value;
+        if (enteredUsername === correctUsername && enteredPassword === correctPassword) {
+            const selectedVideo = videosDropdown.value;
+            const searchTerm = searchInput.value;
+
+            // Update the dropdown based on the entered letters
+            filterVideos(searchTerm);
+
+            // For demonstration purposes, just setting the selected video source
+            const videoSource = selectedVideo ? selectedVideo : 'default_video.mp4';
+
+            // Show the video player and logout button
+            videoPlayer.src = videoSource;
+            videoPlayer.style.display = 'block';
+            logoutButton.style.display = 'block';
+
+            // Hide other elements
+            openButton.style.display = 'none';
+            refreshIcon.style.display = 'none';
+
+        } else {
+            // Incorrect username or password
+            alert('Invalid username or password. Please try again.');
+        }
+    }
+
+    // Update the dropdown when the search input changes
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value;
+        filterVideos(searchTerm);
+    });
+
+    function togglePasswordVisibility(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    function refreshPage() {
+        location.reload();
+    }
+
+    function logout() {
+        // Hide the video player and logout button
+        videoPlayer.style.display = 'none';
+        logoutButton.style.display = 'none';
+
+        // Show other elements
+        openButton.style.display = 'block';
+        refreshIcon.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
