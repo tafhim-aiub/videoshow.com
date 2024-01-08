@@ -82,39 +82,24 @@
             background-color: #2980b9;
         }
 
+        .refresh-icon {
+            cursor: pointer;
+            color: #fff;
+        }
+
         .logout-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            margin-top: 20px;
-            padding: 12px;
             background-color: #e74c3c;
             color: #fff;
             border: none;
             border-radius: 6px;
+            padding: 12px;
             cursor: pointer;
             display: none;
-            animation: blink 1s infinite;
             transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
-        }
-
-        @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0;
-            }
         }
 
         .logout-button:hover {
             background-color: #c0392b;
-            animation: none; /* Disable blinking on hover */
-        }
-
-        .refresh-icon {
-            cursor: pointer;
-            color: #fff;
         }
     </style>
 </head>
@@ -123,33 +108,35 @@
 <div class="container">
     <h1 style="color: #fff;">Be the Best Version</h1>
 
-    <div>
-        <label for="username" style="color: #fff;">Enter Username:</label>
-        <div class="password-container">
-            <input type="text" id="username" required>
-            <span class="password-toggle" onclick="togglePasswordVisibility('username')">👁️</span>
+    <div id="userSection">
+        <div>
+            <label for="username" style="color: #fff;">Enter Username:</label>
+            <div class="password-container">
+                <input type="text" id="username" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('username')">👁️</span>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <label for="password" style="color: #fff;">Enter Password:</label>
-        <div class="password-container">
-            <input type="password" id="password" required>
-            <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+        <div>
+            <label for="password" style="color: #fff;">Enter Password:</label>
+            <div class="password-container">
+                <input type="password" id="password" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <label for="search" style="color: #fff;">Search Video:</label>
-        <input type="text" id="search" placeholder="Enter two or three letters of the video title">
-    </div>
+        <div>
+            <label for="search" style="color: #fff;">Search Video:</label>
+            <input type="text" id="search" oninput="filterVideos()" placeholder="Enter two or three letters of the video title">
+        </div>
 
-    <div>
-        <label for="videos" style="color: #fff;">Select Video:</label>
-        <select id="videos">
-            <option value="">Select a video</option>
-            <!-- Add more video options as needed -->
-        </select>
+        <div>
+            <label for="videos" style="color: #fff;">Select Video:</label>
+            <select id="videos">
+                <option value="">Select a video</option>
+                <!-- Add more video options as needed -->
+            </select>
+        </div>
     </div>
 
     <div class="button-container">
@@ -157,7 +144,7 @@
         <span class="refresh-icon" onclick="refreshPage()">🔄</span>
     </div>
 
-    <video id="customVideo" controls oncontextmenu="return false" style="display: none;">
+    <video id="customVideo" controls oncontextmenu="return false" style="display: none;" controlsList="nodownload">
         <source src="" type="video/mp4">
         Your browser does not support the video tag.
     </video>
@@ -166,32 +153,137 @@
 </div>
 
 <script>
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const searchInput = document.getElementById('search');
-    const videosDropdown = document.getElementById('videos');
+    const userSection = document.getElementById('userSection');
     const openButton = document.getElementById('openButton');
     const refreshIcon = document.querySelector('.refresh-icon');
     const logoutButton = document.querySelector('.logout-button');
     const videoPlayer = document.getElementById('customVideo');
 
-    const correctUsername = 'user123'; // Replace with your desired username
-    const correctPassword = 't123'; // Replace with your desired password
-
-    const videoData = [
-        { value: 'm3lect-01.mp4', label: 'Math-03_P-01' },
-        { value: 'm3lect-02.mp4', label: 'Math-03_P02' },
-        { value: 'java Lecture-1.mp4', label: 'Java_Part-1 ' },
-        { value: 'javalec02.mp4', label: 'Java_P02 ' },
-        // Add more video options as needed
+    const correctCredentials = [
+        { username: 'tafhim', password: '23509021' },
+        // Add more username and password pairs as needed
     ];
 
-    function filterVideos(searchTerm) {
-        const filteredVideos = videoData.filter(video => video.label.toLowerCase().startsWith(searchTerm.toLowerCase()));
-        populateDropdown(filteredVideos);
+    const videoData = [
+        // Your existing videoData array remains unchanged
+
+        { value: 'AlluArjun_M01.mp4', label: 'AlluArjun_M01' },
+        { value: 'AlluArjun_M02.mp4', label: 'AlluArjun_M02' },
+        { value: 'AnasVai_Motivation_01.mp4', label: 'AnasVai_Motivation_01 ' },
+        { value: 'AparVai_Motivation_01.mp4', label: 'AparVai_Motivation_01' },
+        { value: 'Apjkalam_M02.mp4', label: 'Apjkalam_M02' },
+{ value: 'Banglayielts_M01.mp4', label: 'Banglayielts_M01' },
+{ value: 'Banglayielts_M02.mp4', label: 'Banglayielts_M02' },
+{ value: 'BaniRoy_M01.mp4', label: 'BaniRoy_M01' },
+{ value: 'Bigdream_Motivatio.mp4', label: 'Bigdream_Motivatio' },
+{ value: 'Bijoy thalapathi_P01.mp4 ', label: 'Bijoy thalapathi_P01 ' },
+{ value: 'BijoyThalapati_02.mp4', label: 'BijoyThalapati_02' },
+{ value: 'BillGets_M01.mp4', label: 'BillGets_M01' },
+{ value: 'BobyVai_P01.mp4', label: 'BobyVai_P01' },
+{ value: 'BobyVai_P02.mp4', label: 'BobyVai_P02' },
+{ value: 'BobyVai_P03.mp4', label: 'BobyVai_P03' },
+{ value: 'BobyVai_p04.mp4', label: 'BobyVai_p04' },
+{ value: 'Boy comeback after breakup_P01.mp4', label: 'Boy comeback after breakup_P01' },
+{ value: 'Boy comeback after breakup_P01.mp4', label: 'Boy comeback after breakup_P01' },
+{ value: 'BoysComeBack_03.mp4', label: 'BoysComeBack_03' },
+{ value: 'Coding_Motivation_P01.mp4', label: 'Coding_Motivation_P01' },
+{ value: 'Dream_01.mp4', label: 'AlluArjun_M01' },
+{ value: 'dreamgirl.mp4', label: 'dreamgirl' },
+{ value: 'ElonMusk_P01.mp4', label: 'ElonMusk_P01' },
+{ value: 'ElonMusk_P02.mp4', label: 'ElonMusk_P02' },
+{ value: 'Fida_M01.mp4', label: 'Fida_M01' },
+{ value: 'Fida_M02.mp4', label: 'Fida_M02' },
+{ value: 'German_Motivation_Ashikgermany.mp4', label: 'German_Motivation_Ashikgermany' },
+{ value: 'girls_jealousy_02.mp4', label: 'girls_jealousy_02' },
+{ value: 'girls_jealousy_03.mp4', label: 'girls_jealousy_03' },
+{ value: 'girls_jelousy_01.mp4', label: 'girls_jelousy_01' },
+{ value: 'girls_jelousy_03.mp4', label: 'girls_jelousy_03' },
+{ value: 'Girrejevtion_01.mp4', label: 'Girlrejecion_01' },
+{ value: 'HalalWedding_Islamicmotivation.mp4', label: 'HalalWedding_Islamicmotivation' },
+{ value: 'HalalWedding_P01.mp4', label: 'HalalWedding_P01' },
+{ value: 'HalalWedding_p03.mp4 ', label: 'HalalWedding_p03 ' },
+{ value: 'HalalWediing_P02.mp4', label: 'HalalWediing_P02' },
+{ value: 'HalalWedding_p04.mp4', label: 'HalalWedding_p04' },
+{ value: 'HalalWife.mp4', label: 'HalalWife' },
+{ value: 'ignorance.mp4', label: 'ignorance' },
+{ value: 'ignoregirl_01.mp4', label: 'ignoregirl_01' },
+{ value: 'ignoregirl_02.mp4', label: 'ignoregirl_02' },
+{ value: 'ignoregirl_03.mp4', label: 'ignoregirl_03' },
+{ value: 'IIT Delhi_Motivation_01.mp4', label: 'IIT Delhi_Motivation_01' },
+{ value: 'kora_M02.mp4', label: 'kora_M02' },
+{ value: 'Kora_P01.mp4', label: 'Kora_P01' },
+
+{ value: 'Maheshbabu_P01.mp4', label: 'Maheshbabu_P01' },
+{ value: 'Maheshbabu_P02.mp4', label: 'Maheshbabu_P02' },
+{ value: 'Maheshbabu_P03.mp4', label: 'Maheshbabu_P03' },
+{ value: 'Maheshbabu_P04.mp4', label: 'Maheshbabu_P04' },
+{ value: 'Maheshbabu_P05_NoLove.mp4', label: 'Maheshbabu_P05_NoLove' },
+{ value: 'Maheshbabu_P06_challange.mp4', label: 'Maheshbabu_P06_challange' },
+{ value: 'Maheshbabu_P07_flirting.mp4', label: 'Maheshbabu_P07_flirting' },
+{ value: 'Mothers Dream MaheshBabu.mp4', label: 'Mothers Dream MaheshBabu' },
+{ value: 'MaheshbabuDontCare_P01.mp4', label: 'MaheshbabuDontCare_P01.mp4' },
+{ value: 'Maheshbabu_P09.mp4', label: 'Maheshbabu_P09' },
+{ value: 'Maheshbabu_P11_ComeBack.mp4', label: 'Maheshbabu_P11_ComeBack' },
+{ value: 'Maheshbabu_P12_Get Rich.mp4', label: 'Maheshbabu_P12_Get Rich' },
+{ value: 'Maheshbabu_P13_Popularity.mp4', label: 'Maheshbabu_P13_Popularity' },
+{ value: 'Maheshbabu_P14_Style.mp4', label: 'Maheshbabu_P14_Style' },
+{ value: 'Maheshbabu_P15_LifeAdvice.mp4', label: 'Maheshbabu_P15_LifeAdvice' },
+{ value: 'Maheshbabu_P16_Mother inspire.mp4', label: 'Maheshbabu_P16_Mother inspire' },
+{ value: 'Maheshbabu_P17.mp4', label: 'Maheshbabu_P17' },
+{ value: 'Maheshbabu_P18.mp4', label: 'Maheshbabu_P18' },
+{ value: 'Maheshbabu_P19_GirlsRehection_comeback.mp4', label: 'Maheshbabu_P19_GirlsRehection_comeback' },
+{ value: 'Maheshbabu_P20_Revenge.mp4', label: 'Maheshbabu_P20_Revenge' },
+{ value: 'Maheshbabu_SuccessSpeech.mp4', label: 'Maheshbabu_SuccessSpeech' },
+
+{ value: 'Motivation_02.mp4', label: 'Motivation_02 ' },
+{ value: 'Motivation_03.mp4', label: 'Motivation_03' },
+{ value: 'Motivation_03.mp4', label: 'Motivation_03' },
+{ value: 'Motivation_04.mp4', label: 'Motivation_04' },
+{ value: 'Motivation_05.mp4', label: 'Motivation_05' },
+{ value: 'Motivation_06.mp4', label: 'Motivation_06' },
+{ value: 'Motivation_07.mp4', label: 'Motivation_07' },
+{ value: 'Motivation_08.mp4 ', label: 'Motivation_08' },
+{ value: 'Motivation_Dosomething.mp4', label: 'Motivation_Dosomething' },
+{ value: 'Motivation_Focus.mp4', label: 'Motivation_Focus' },
+{ value: 'Motivation_ignoregirl_DEV.mp4', label: 'Motivation_ignoregirl_DEV' },
+{ value: 'Motivation_kora.mp4', label: 'Motivation_kora' },
+{ value: 'Motivation_Kora_01.mp4', label: 'Motivation_Kora_01' },
+{ value: 'Motivation_kora_02.mp4', label: 'Motivation_kora_02' },
+{ value: 'Motivation_OneDay.mp4', label: 'Motivation_OneDay' },
+{ value: 'Motivation_p01.mp4', label: 'Motivation_p01' },
+{ value: 'Motivation_Rafsan_01.mp4', label: 'Motivation_Rafsan_01' },
+
+{ value: 'My Bou.mp4', label: 'My Bou' },
+{ value: 'MyWeddingPaln_02.mp4', label: 'MyWeddingPaln_02' },
+{ value: 'MyWeddingPlan_01.mp4', label: 'MyWeddingPlan_01' },
+{ value: 'Patience_01.mp4', label: 'Patience_01' },
+{ value: 'Ronaldo_M01.mp4', label: 'Ronaldo_M01' },
+{ value: 'Ronaldo_M02.mp4', label: 'Ronaldo_M02' },
+{ value: 'SajiaTanni_P01.mp4', label: 'SajiaTanni_P01' },
+{ value: 'SuccessMotivation_01.mp4', label: 'SuccessMotivation_01' },
+{ value: 'SuccessMotoivation_03.mp4', label: 'SuccessMotoivation_03' },
+{ value: 'Tahosan_Motivatio_02.mp4', label: 'Tahosan_Motivatio_02' },
+{ value: 'Tahosan_Motivation.mp4', label: 'Tahosan_Motivation' },
+{ value: 'Tholiprema_boys revenge_after breakup.mp4', label: 'Tholiprema_boys revenge_after breakup' },
+
+
+
+        // ... (add more videos here)
+    ];
+
+    function filterVideos() {
+        const videosDropdown = document.getElementById('videos');
+        const searchTerm = document.getElementById('search').value.toLowerCase();
+
+        const filteredVideos = videoData.filter(video => video.label.toLowerCase().includes(searchTerm));
+        populateDropdown(videosDropdown, filteredVideos);
+
+        // Set the selected video if it was already chosen
+        const selectedVideo = videosDropdown.value;
+        videoPlayer.src = selectedVideo ? selectedVideo : '';
     }
 
-    function populateDropdown(videos) {
+    function populateDropdown(videosDropdown, videos) {
         videosDropdown.innerHTML = '<option value="">Select a video</option>';
         videos.forEach(video => {
             const option = document.createElement('option');
@@ -202,38 +294,45 @@
     }
 
     function openVideo() {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const videosDropdown = document.getElementById('videos');
+        const searchInput = document.getElementById('search');
+
         const enteredUsername = usernameInput.value;
         const enteredPassword = passwordInput.value;
-        if (enteredUsername === correctUsername && enteredPassword === correctPassword) {
+
+        // Check if the entered username and password are correct
+        const isCredentialsCorrect = correctCredentials.some(
+            cred => cred.username === enteredUsername && cred.password === enteredPassword
+        );
+
+        if (isCredentialsCorrect) {
             const selectedVideo = videosDropdown.value;
             const searchTerm = searchInput.value;
 
             // Update the dropdown based on the entered letters
-            filterVideos(searchTerm);
+            filterVideos();
 
             // For demonstration purposes, just setting the selected video source
             const videoSource = selectedVideo ? selectedVideo : 'default_video.mp4';
 
-            // Show the video player and logout button
+            // Show the video player
             videoPlayer.src = videoSource;
             videoPlayer.style.display = 'block';
-            logoutButton.style.display = 'block';
 
-            // Hide other elements
+            // Hide the user section and buttons
+            userSection.style.display = 'none';
             openButton.style.display = 'none';
             refreshIcon.style.display = 'none';
 
+            // Show the logout button
+            logoutButton.style.display = 'block';
         } else {
             // Incorrect username or password
             alert('Invalid username or password. Please try again.');
         }
     }
-
-    // Update the dropdown when the search input changes
-    searchInput.addEventListener('input', () => {
-        const searchTerm = searchInput.value;
-        filterVideos(searchTerm);
-    });
 
     function togglePasswordVisibility(fieldId) {
         const field = document.getElementById(fieldId);
@@ -245,14 +344,13 @@
     }
 
     function logout() {
-        // Hide the video player and logout button
-        videoPlayer.style.display = 'none';
-        logoutButton.style.display = 'none';
-
-        // Show other elements
-        openButton.style.display = 'block';
-        refreshIcon.style.display = 'block';
+        // Go back to the previous page
+        window.location.replace(document.referrer);
     }
+
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
 </script>
 
 </body>
