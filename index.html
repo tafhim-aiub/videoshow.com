@@ -144,10 +144,11 @@
         <span class="refresh-icon" onclick="refreshPage()">🔄</span>
     </div>
 
-    <video id="customVideo" controls oncontextmenu="return false" style="display: none;" controlsList="nodownload">
+<video id="customVideo" controls loop oncontextmenu="return false" style="display: none;" controlsList="nodownload">
         <source src="" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+
 
     <button class="logout-button" onclick="logout()">Logout</button>
 </div>
@@ -272,6 +273,17 @@
     ];
 
     function filterVideos() {
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const enteredUsername = usernameInput.value;
+    const enteredPassword = passwordInput.value;
+
+    // Check if the entered username and password are correct
+    const isCredentialsCorrect = correctCredentials.some(
+        cred => cred.username === enteredUsername && cred.password === enteredPassword
+    );
+
+    if (isCredentialsCorrect) {
         const videosDropdown = document.getElementById('videos');
         const searchTerm = document.getElementById('search').value.toLowerCase();
 
@@ -281,7 +293,12 @@
         // Set the selected video if it was already chosen
         const selectedVideo = videosDropdown.value;
         videoPlayer.src = selectedVideo ? selectedVideo : '';
+    } else {
+        // If the credentials are not correct, do not perform the filtering
+        alert('Invalid username or password. Please try again.');
     }
+}
+
 
     function populateDropdown(videosDropdown, videos) {
         videosDropdown.innerHTML = '<option value="">Select a video</option>';
